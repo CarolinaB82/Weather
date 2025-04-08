@@ -1,7 +1,8 @@
+
+# weather/urls.py
 from django.urls import path
-from . import views
+from .views import WeatherAPIView
 
 urlpatterns = [
-    # URL qui accepte un paramètre "city"
-    path('api/weather/<str:city>/', views.weather, name='weather'),
+    path('weather/', WeatherAPIView.as_view(), name='weather'),  # Utilise la vue basée sur la classe WeatherAPIView
 ]
