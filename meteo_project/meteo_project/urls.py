@@ -14,11 +14,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+#from django.contrib import admin
+#from django.urls import path
+#from weather import views  # On importe directement les vues depuis weather
+
+#urlpatterns = [
+#    path('admin/', admin.site.urls),
+#    path('api/weather/', views.weather),  # Appel de la vue weather directement depuis weather
+#]
+
+# meteo_project/urls.py
 from django.contrib import admin
-from django.urls import path
-from weather import views  # On importe directement les vues depuis weather
+from django.urls import path, include  # 'include' permet d'inclure d'autres fichiers d'URLs
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/weather/', views.weather),  # Appel de la vue weather directement depuis weather
+    path('api/', include('weather.urls')),  # Inclut les URLs de l'application 'weather'
 ]

@@ -54,9 +54,8 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8082",  # Remplace par l'URL de ton frontend en développement
+    "http://localhost:8082",  # URL de ton frontend en développement
 ]
-
 ROOT_URLCONF = 'meteo_project.urls'
 
 TEMPLATES = [
