@@ -24,10 +24,18 @@ Including another URLconf
 #]
 
 # meteo_project/urls.py
+#from django.contrib import admin
+#from django.urls import path, include  # 'include' permet d'inclure d'autres fichiers d'URLs
+
+#urlpatterns = [
+    #path('admin/', admin.site.urls),
+    #path('api/', include('weather.urls')),  # Inclut les URLs de l'application 'weather'
+#]
+# meteo_project/urls.py
 from django.contrib import admin
-from django.urls import path, include  # 'include' permet d'inclure d'autres fichiers d'URLs
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('weather.urls')),  # Inclut les URLs de l'application 'weather'
+    path('api/', include('weather.urls')),  # Inclure les URLs de l'app weather
 ]
