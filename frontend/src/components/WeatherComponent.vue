@@ -1,117 +1,110 @@
 <template>
-  <div class="weather-container">
-    <h1>Weather for {{ city }}</h1>
+  <div v-if="weatherData" :style="{
+      backgroundImage: backgroundImage ? 'url(' + backgroundImage + ')' : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      height: '100vh',
+      backgroundAttachment: 'fixed',
+      color: 'white',
+      padding: '20px',
+      boxSizing: 'border-box',
+    }" class="weather-container">
 
-    <!-- Formulaire pour entrer le nom de la ville -->
-    <div>
-      <input v-model="city" @keyup.enter="getWeather(city)" placeholder="Enter city" />
-      <button @click="getWeather(city)">Get Weather</button>
-    </div>
+    <div class="weather-content">
+      <!-- 🌡️ Météo actuelle -->
+      <CurrentWeatherComponent :weatherData="weatherData.current" :city="city" :searchCity="debouncedSearch" />
 
-    <!-- Affichage quand les données sont en cours de chargement -->
-    <div v-if="loading" class="loading">Loading weather data...</div>
+      <!-- Recherche dynamique de la ville -->
+      <div class="search-bar">
+        <input type="text" v-model="city" @input="debouncedSearch(city)" placeholder="Rechercher une ville" />
+      </div>
+<!-- Conteneur des prévisions (heures + jours) -->
+<div class="forecast-container">
+  <div class="forecast-left">
+          <HourForecastComponent :hours="weatherData.hourly.slice(0, 5)" />
+        </div>
 
-    <!-- Affichage quand une erreur survient -->
-    <div v-if="error" class="error">{{ error }}</div>
-
-    <!-- Affichage des données météorologiques quand elles sont disponibles -->
-    <div v-if="weatherData" class="weather-data">
-      <p><strong>Temperature:</strong> {{ weatherData.temperature }}°C</p>
-      <p><strong>Description:</strong> {{ weatherData.description }}</p>
-    </div>
+        <!-- 📅 Prévision 3 prochains jours -->
+        <div class="forecast-right">
+          <DailyForecastComponent :days="weatherData.daily.slice(0, 3)" />
+        </div>
   </div>
+</div>
+</div>
 </template>
 
 <script>
+import '@/assets/weather.css';
 import axios from 'axios';
+import { debounce } from 'lodash';
+import CurrentWeatherComponent from './CurrentWeatherComponent.vue';
+import HourForecastComponent from './HourForecastComponent.vue';
+import DailyForecastComponent from './DailyForecastComponent.vue';
 
 export default {
+  components: {
+    CurrentWeatherComponent,
+    HourForecastComponent,
+    DailyForecastComponent,
+  },
   data() {
     return {
-      city: 'Paris',  // Ville par défaut
-      weatherData: null,  // Stocke les données météorologiques
-      error: null,  // Gère les erreurs
-      loading: false,  // Indicateur de chargement
+      city: 'Paris', // Ville par défaut
+      weatherData: null, // Données météo
+      error: null, // Message d'erreur
+      loading: false, // Indicateur du chargement des données
+      backgroundImage: '', // URL de l'image de fond
     };
   },
   methods: {
-    // Méthode pour récupérer les données météo
+    debouncedSearch: debounce(function(city) {
+      this.getWeather(city);
+    }, 500),
+    
     async getWeather(city) {
-      this.loading = true;  // Afficher le message de chargement
-      this.error = null;  // Réinitialiser les erreurs
+      this.loading = true;
+      this.error = null;
       try {
-        // Effectuer la requête à l'API Django
         const response = await axios.get(`http://localhost:8000/api/weather/?city=${city}`);
-        console.log('Données météo:', response.data);  // Affiche les données dans la console
-        this.weatherData = response.data;  // Stocke les données météo
+        if (response.data) {
+          this.weatherData = response.data;
+          await this.getCityImage(city);
+        } else {
+          this.error = 'Aucune donnée reçue de l\'API.';
+        }
       } catch (error) {
-        this.error = 'Erreur lors de la récupération des données météo.';  // Gérer l'erreur
-        console.error('Erreur:', error);  // Affiche l'erreur dans la console
+        this.error = 'Erreur lors de la récupération des données météo : ' + error.message;
       } finally {
-        this.loading = false;  // Fin du chargement
+        this.loading = false;
       }
     },
+
+    async getCityImage(city) {
+      try {
+        const response = await axios.get(`https://api.pexels.com/v1/search?query=${city}&per_page=1`, {
+          headers: {
+            Authorization: 'WEM3MGK7BEKIq0BWZvuJQyVlYm2VCndVYAkDnCBA6NBpI2bmfoPz0KS4',
+          }
+        });
+        if (response.data && response.data.photos.length > 0) {
+          this.backgroundImage = response.data.photos[0].src.original;
+        } else {
+          this.backgroundImage = "https://www.cerema.fr/sites/default/files/styles/uas_medium/public/media/images/2020/12/cityscape-3239939_-_copie.png?h=29a9f0d1&itok=0NtvLYbS";
+          console.error('Aucune image trouvée pour cette ville.');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'image Pexels :', error);
+      }
+    }
+  },
+  watch: {
+    city(newCity) {
+      this.debouncedSearch(newCity);
+    }
   },
   mounted() {
-    // Appel initial pour charger les données météo pour la ville par défaut
     this.getWeather(this.city);
-  },
+    this.getCityImage(this.city);
+  }
 };
 </script>
-
-<style scoped>
-/* Styles pour ton composant */
-.weather-container {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 30px auto;
-  padding: 20px;
-  max-width: 600px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  color: #333;
-}
-
-.loading {
-  color: #3498db;
-  font-weight: bold;
-}
-
-.error {
-  color: #e74c3c;
-  font-weight: bold;
-}
-
-.weather-data p {
-  font-size: 18px;
-  color: #2c3e50;
-}
-
-.weather-data strong {
-  font-weight: bold;
-}
-
-input {
-  padding: 8px;
-  margin-right: 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
-</style>

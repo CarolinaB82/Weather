@@ -1,0 +1,93 @@
+.weather-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.weather-content {
+  display: flex;
+  flex-direction: column; /* La météo actuelle et la barre de recherche en haut */
+  justify-content: flex-start;
+  width: 80%;
+  max-width: 1200px;
+  background-color: rgba(0, 0, 0, 0.7); /* Cadre noir */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.current-weather {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 50%;
+}
+.forecast-container{
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+/* Prévisions horaires et prévisions sur 3 jours */
+.forecasts {
+  display: flex; /* Utilisation de flexbox pour aligner les éléments horizontalement */
+  justify-content: space-between; /* Espace entre les éléments */
+  width: 100%;
+  flex-wrap: nowrap; /* S'assurer qu'ils restent côte à côte et ne passent pas sous */
+}
+
+.forecast-left, .forecast-right {
+  width: 100%; /* Chaque bloc prend 48% de la largeur disponible */
+  padding: 10px;
+  color: white;
+  box-sizing: border-box; /* S'assurer que le padding est pris en compte dans la largeur */
+}
+
+.forecast-left ul, .forecast-right ul {
+  padding: 0;
+  list-style: none;
+  line-height: 1.2;
+}
+
+.forecast-left li, .forecast-right li {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.forecast-left h3, .forecast-right h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+img {
+  width: 20px;
+  vertical-align: middle;
+  margin-left: 10px;
+}
+
+/* Ajustements pour les écrans plus petits (mobile) */
+@media (max-width: 768px) {
+  .weather-content {
+    flex-direction: column; /* Sur mobile, les éléments se placent en colonne */
+    align-items: center;
+    gap: 20px;
+  }
+
+  .forecast-left, .forecast-right {
+    width: 100%; /* Sur mobile, chaque bloc prend 100% de la largeur */
+    margin-bottom: 20px;
+  }
+}
