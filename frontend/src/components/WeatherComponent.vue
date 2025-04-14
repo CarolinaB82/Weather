@@ -68,7 +68,7 @@ export default {
         const response = await axios.get(`http://localhost:8000/api/weather/?city=${city}`);
         if (response.data) {
           this.weatherData = response.data;
-          await this.getCityImage(city);
+          this.backgroundImage = response.data.backgroundImage;
         } else {
           this.error = 'Aucune donnée reçue de l\'API.';
         }
@@ -78,25 +78,9 @@ export default {
         this.loading = false;
       }
     },
-
-    async getCityImage(city) {
-      try {
-        const response = await axios.get(`https://api.pexels.com/v1/search?query=${city}&per_page=1`, {
-          headers: {
-            Authorization: 'WEM3MGK7BEKIq0BWZvuJQyVlYm2VCndVYAkDnCBA6NBpI2bmfoPz0KS4',
-          }
-        });
-        if (response.data && response.data.photos.length > 0) {
-          this.backgroundImage = response.data.photos[0].src.original;
-        } else {
-          this.backgroundImage = "https://www.cerema.fr/sites/default/files/styles/uas_medium/public/media/images/2020/12/cityscape-3239939_-_copie.png?h=29a9f0d1&itok=0NtvLYbS";
-          console.error('Aucune image trouvée pour cette ville.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'image Pexels :', error);
-      }
-    }
   },
+
+   
   watch: {
     city(newCity) {
       this.debouncedSearch(newCity);
@@ -104,7 +88,6 @@ export default {
   },
   mounted() {
     this.getWeather(this.city);
-    this.getCityImage(this.city);
   }
 };
 </script>

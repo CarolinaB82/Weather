@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
+from urllib.parse import quote
 
 # Fonction pour récupérer les coordonnées de la ville
 def get_coordinates(city):
@@ -29,7 +30,7 @@ def get_weather_data(lat, lon):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            data = response.json()
+            data = response.json() 
             # Filtrage des 5 premiers jours (on garde 5 valeurs horaires)
             return {
                 "current": {
@@ -37,6 +38,7 @@ def get_weather_data(lat, lon):
                     "description": data["list"][0]["weather"][0]["description"],
                     "humidity": data["list"][0]["main"]["humidity"],
                     "wind_speed": data["list"][0]["wind"]["speed"],
+                    "pressure": data["list"][0]["main"]["pressure"],
                     "icon": data["list"][0]["weather"][0]["icon"],
                 },
                 "hourly": data["list"][:5],  # Prochaines 5 heures
@@ -53,24 +55,28 @@ def get_background_image(city):
     url = f'https://api.pexels.com/v1/search?query={city}&per_page=1'
 
     headers = {
-        'Authorization': f'Bearer {pexels_api_key}',
+        'Authorization': f'{pexels_api_key}',
     }
 
     try:
         response = requests.get(url, headers=headers)
+        
+       
         if response.status_code == 200:
+            
             data = response.json()
             if len(data['photos']) > 0:
                 return data['photos'][0]['src']['original']
             else:
                 # Si aucune image n'est trouvée, retourner une image par défaut
-                return "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.alamy.com%2Fstock-photo%2Fplace-du-capitole-toulouse.html&psig=AOvVaw2W-juxLxP2N9RfHr6BQteJ&ust=1744544527561000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMiOnvq00owDFQAAAAAdAAAAABAE"  # Remplace par une URL d'image par défaut
+                return "https://www.cerema.fr/sites/default/files/styles/uas_medium/public/media/images/2020/12/cityscape-3239939_-_copie.png?h=29a9f0d1&itok=0NtvLYbS"  # Remplace par une URL d'image par défaut
         else:
+            
             # En cas d'erreur avec l'API Pexels, retourner une image par défaut
-            return "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.alamy.com%2Fstock-photo%2Fplace-du-capitole-toulouse.html&psig=AOvVaw2W-juxLxP2N9RfHr6BQteJ&ust=1744544527561000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMiOnvq00owDFQAAAAAdAAAAABAE"  # Remplace par une URL d'image par défaut
+            return "https://www.cerema.fr/sites/default/files/styles/uas_medium/public/media/images/2020/12/cityscape-3239939_-_copie.png?h=29a9f0d1&itok=0NtvLYbS"  # Remplace par une URL d'image par défaut
     except requests.exceptions.RequestException as e:
         # Si l'API échoue, retourne une image par défaut
-        return "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.alamy.com%2Fstock-photo%2Fplace-du-capitole-toulouse.html&psig=AOvVaw2W-juxLxP2N9RfHr6BQteJ&ust=1744544527561000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCMiOnvq00owDFQAAAAAdAAAAABAE"  # Remplace par une URL d'image par défaut
+        return "https://www.cerema.fr/sites/default/files/styles/uas_medium/public/media/images/2020/12/cityscape-3239939_-_copie.png?h=29a9f0d1&itok=0NtvLYbS"  # Remplace par une URL d'image par défaut
 
 
 class WeatherAPIView(APIView):
